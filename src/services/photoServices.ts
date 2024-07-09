@@ -1,4 +1,5 @@
 import axios from "axios";
+import { userInfo } from "os";
 
 const URL = 'https://jsonplaceholder.typicode.com';
 
@@ -44,5 +45,24 @@ export interface Company{
     name:string;
     catchPhrase:string;
     bs: string;
+}
+
+export const getPhById = async(id: number): Promise<Photo>=>{
+    const responsePh = await axios.get(`${URL}/photos/${id}`);
+    const ph = responsePh.data;
+
+    const responseAlbm = await axios.get(`${URL}/albums/${ph.albumId}`);
+    const album = responseAlbm.data;
+
+    const responseUsr = await axios.get(`${URL}/users/${album.userId}`);
+    const usr = responseUsr.data;
+
+    return{
+        ...ph,
+        album: {
+            ...album,
+            usr,
+        },
+    };
 }
 
