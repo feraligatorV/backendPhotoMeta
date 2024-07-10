@@ -1,5 +1,6 @@
 import axios from "axios";
 import { userInfo } from "os";
+import { off } from "process";
 
 const URL = 'https://jsonplaceholder.typicode.com';
 
@@ -67,9 +68,9 @@ export const getPhById = async(id: number): Promise<Photo>=>{
 }
 
 
-export const getPhFilter = async(filters:any): Promise<Photo>=>{
+export const getPhFilter = async(filters:any, limit: number = 25, offset: number = 0): Promise<Photo[]>=>{
     const responsePh = await axios.get(`${URL}/photos`);
-    let ph = responsePh.data;
+    const ph = responsePh.data;
 
     const responseAlbm = await axios.get(`${URL}/albums`);
     const albums = responseAlbm.data;
@@ -77,11 +78,11 @@ export const getPhFilter = async(filters:any): Promise<Photo>=>{
     const responseUsr = await axios.get(`${URL}/users`);
     const usr = responseUsr.data;
 
-    ph = ph.map((photo:any)=>{
+    const combinedPh = ph.map((photo:any)=>{
         const album = albums.find((a:any) => a.id === photo.albumId);
         const user = usr.find((x:any)=> x.id === album.userId );
         return{
-            ...ph,
+            ...photo,
             album: {
                 ...album,
                 user,
@@ -89,17 +90,24 @@ export const getPhFilter = async(filters:any): Promise<Photo>=>{
         };
     });
 
-    //filtered data 
+    //filtered data
+    let filteredPh = combinedPh; 
     if(filters.title){
-        ph = ph.filter((photo: Photo) => photo.title.includes(filters.title));
+        filteredPh = filteredPh.filter((photo: Photo) => photo.title.includes(filters.title));
     }
     if(filters.albumTitle){
-        ph = ph.filter((photo: Photo) => photo.album.title.includes(filters.albumTitle));
+        filteredPh = filteredPh.filter((photo: Photo) => photo.album.title.includes(filters.albumTitle));
     }
     if(filters.userEmail){
-        ph = ph.filter((photo: Photo) => photo.album.user.email === filters.userEmail);
+        filteredPh = filteredPh.filter((photo: Photo) => photo.album.user.email === filters.userEmail);
     }
 
- return ph;
+    //pagination
+    const paginationPhotos = [];
+    for (let i = offset; i < offset + limit && i < ph.length; i++) {
+        paginationPhotos.push(ph[i]);
+      }
+
+ return paginationPhotos;
 }
 
