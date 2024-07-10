@@ -66,3 +66,40 @@ export const getPhById = async(id: number): Promise<Photo>=>{
     };
 }
 
+
+export const getPhFilter = async(filters:any): Promise<Photo>=>{
+    const responsePh = await axios.get(`${URL}/photos`);
+    let ph = responsePh.data;
+
+    const responseAlbm = await axios.get(`${URL}/albums`);
+    const albums = responseAlbm.data;
+
+    const responseUsr = await axios.get(`${URL}/users`);
+    const usr = responseUsr.data;
+
+    ph = ph.map((photo:any)=>{
+        const album = albums.find((a:any) => a.id === photo.albumId);
+        const user = usr.find((x:any)=> x.id === album.userId );
+        return{
+            ...ph,
+            album: {
+                ...album,
+                user,
+            },
+        };
+    });
+
+    //filtered data 
+    if(filters.title){
+        ph = ph.filter((photo: Photo) => photo.title.includes(filters.title));
+    }
+    if(filters.albumTitle){
+        ph = ph.filter((photo: Photo) => photo.album.title.includes(filters.albumTitle));
+    }
+    if(filters.userEmail){
+        ph = ph.filter((photo: Photo) => photo.album.user.email === filters.userEmail);
+    }
+
+ return ph;
+}
+
