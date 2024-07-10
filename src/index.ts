@@ -6,6 +6,9 @@ const port = process.env.PORT || 3000;
 
 app.get('/externalapi/photos/:id', getPhoto);
 app.get('/externalapi/photos', getFilteredPh);
+app.get('/test', (req,res)=>{
+    res.send('prueba')
+});
 
 app.listen(port, ()=> {
     console.log(`server is running on http://localhost:${port}`);
