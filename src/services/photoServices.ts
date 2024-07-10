@@ -104,7 +104,7 @@ export const getPhFilter = async(filters:any, limit: number = 25, offset: number
 
     //pagination
     const paginationPhotos = [];
-    for (let i = offset; i < offset + limit && i < ph.length; i++) {
+    for (let i = offset; i < offset + limit && i < filteredPh.length; i++) {
         paginationPhotos.push(ph[i]);
       }
 
